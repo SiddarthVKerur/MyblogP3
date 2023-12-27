@@ -4,6 +4,7 @@ import com.myblogp3.Entity.User;
 import com.myblogp3.Repository.UserRepository;
 import com.myblogp3.payload.SignInDto;
 import com.myblogp3.payload.SignUpDto;
+import com.myblogp3.util.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,10 @@ public class AuthController {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignUpDto signUpDto) {
@@ -41,6 +44,7 @@ public class AuthController {
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         userRepository.save(user);
+        emailService.sendMail(signUpDto.getEmail(),"testing","successfully");
         return new ResponseEntity<>("successfully registered", HttpStatus.CREATED);
     }
 
@@ -51,7 +55,6 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         return new ResponseEntity<>("user sign-in successfully", HttpStatus.OK);
     }
-
 
 
 }
